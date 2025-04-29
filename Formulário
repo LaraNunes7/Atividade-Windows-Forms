@@ -1,0 +1,93 @@
+using System;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace CadastroSetores
+{
+    public partial class FrmSetores : Form
+    {
+        public FrmSetores()
+        {
+            InitializeComponent();
+            AtualizarGrid();
+        }
+
+        private void btnCadastrar_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNome.Text))
+            {
+                MessageBox.Show("Nome é obrigatório!");
+                return;
+            }
+
+            var setor = new Setor { Nome = txtNome.Text };
+            setor.InserirSetor();
+            LimparCampos();
+            AtualizarGrid();
+        }
+
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(txtId.Text, out int id))
+            {
+                var setor = new Setor { Id = id, Nome = txtNome.Text };
+                setor.AtualizarSetor();
+                LimparCampos();
+                AtualizarGrid();
+            }
+            else
+            {
+                MessageBox.Show("Selecione um setor para editar.");
+            }
+        }
+
+        private void btnExcluir_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(txtId.Text, out int id))
+            {
+                var confirm = MessageBox.Show("Deseja realmente excluir?", "Confirmar", MessageBoxButtons.YesNo);
+                if (confirm == DialogResult.Yes)
+                {
+                    var setor = new Setor { Id = id };
+                    setor.ExcluirSetor();
+                    LimparCampos();
+                    AtualizarGrid();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Selecione um setor para excluir.");
+            }
+        }
+
+        private void btnListarTodos_Click(object sender, EventArgs e)
+        {
+            AtualizarGrid();
+        }
+
+        private void txtPesquisar_TextChanged(object sender, EventArgs e)
+        {
+            dgvSetores.DataSource = Setor.ListarSetorPorNome(txtPesquisar.Text);
+        }
+
+        private void dgvSetores_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                txtId.Text = dgvSetores.Rows[e.RowIndex].Cells["Id"].Value.ToString();
+                txtNome.Text = dgvSetores.Rows[e.RowIndex].Cells["Nome"].Value.ToString();
+            }
+        }
+
+        private void AtualizarGrid()
+        {
+            dgvSetores.DataSource = Setor.ListarTodosSetores();
+        }
+
+        private void LimparCampos()
+        {
+            txtId.Clear();
+            txtNome.Clear();
+        }
+    }
+}
