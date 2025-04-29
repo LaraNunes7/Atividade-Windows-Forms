@@ -1,0 +1,87 @@
+using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+
+namespace CadastroSetores
+{
+    public class Setor
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; }
+
+        public void InserirSetor()
+        {
+            using (var conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("INSERT INTO setores (nome) VALUES (@nome)", conn);
+                cmd.Parameters.AddWithValue("@nome", Nome);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void AtualizarSetor()
+        {
+            using (var conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("UPDATE setores SET nome = @nome WHERE id = @id", conn);
+                cmd.Parameters.AddWithValue("@nome", Nome);
+                cmd.Parameters.AddWithValue("@id", Id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void ExcluirSetor()
+        {
+            using (var conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("DELETE FROM setores WHERE id = @id", conn);
+                cmd.Parameters.AddWithValue("@id", Id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static List<Setor> ListarTodosSetores()
+        {
+            var lista = new List<Setor>();
+            using (var conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("SELECT * FROM setores", conn);
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new Setor
+                    {
+                        Id = Convert.ToInt32(reader["id"]),
+                        Nome = reader["nome"].ToString()
+                    });
+                }
+            }
+            return lista;
+        }
+
+        public static List<Setor> ListarSetorPorNome(string nome)
+        {
+            var lista = new List<Setor>();
+            using (var conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("SELECT * FROM setores WHERE nome LIKE @nome", conn);
+                cmd.Parameters.AddWithValue("@nome", "%" + nome + "%");
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new Setor
+                    {
+                        Id = Convert.ToInt32(reader["id"]),
+                        Nome = reader["nome"].ToString()
+                    });
+                }
+            }
+            return lista;
+        }
+    }
+}
